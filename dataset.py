@@ -1,5 +1,11 @@
 #higher score = higher category = more depressed
+import math
+import random
+import os
 import pandas as pd
+import numpy as np
+
+random.seed(1)
 
 def get_age(x):
     return 2025 - x
@@ -93,13 +99,77 @@ def preprocess(df_primary):
     return df_primary
 
 
+def test_train_val_split():
+    #80 10 10 split
+    participant_list = os.listdir("filtered")
+    random.shuffle(participant_list)
+
+    n = len(participant_list)
+
+
+
+    train = participant_list[0: math.ceil(n*0.8)]
+    test = participant_list[ math.ceil(n*0.8): math.ceil(n*0.9)]
+    val = participant_list[math.ceil(n*0.9):]
+    return train, test, val
+
+
+def calc_mu_sigma(column):
+    participant_list = os.listdir("filtered")
+    vals = []
+    for file in participant_list:
+        df = pd.read_csv("filtered/" + file)
+
+        vals += df[column].dropna().tolist()
+
+
+    vals = np.array(vals)
+    return np.mean(vals), np.std(vals)
+
+def scale(file, file_loc):
+
+
+    df_main = pd.read_csv(file_loc)
+    df_scales = pd.read_csv("col_mean_sd.csv")
+
+
+    for i in range(len(df_scales["Mean"])):
+        mean = df_scales["Mean"].iloc[i]
+        sd = df_scales["SD"].iloc[i]
+        col = df_scales["Column"].iloc[i]
+
+        def z_score(x):
+            return (x - mean)/sd
+
+        df_main[col]  = df_main[col].apply(z_score)
+
+    df_main.to_csv("filtered_scaled/" + file, index=False)
+
 if __name__ == "__main__":
+    files = os.listdir("filtered")
+    for file in files:
+        scale(file=file, file_loc="filtered/0.csv")
+        print(file)
 
-    df = pd.read_csv("data.csv")
+    '''
+    df = pd.DataFrame()
 
-    d = (filter_participants(df))
+    cols = pd.read_csv("filtered/0.csv").columns.tolist()
 
-    for participant in d:
-        response_df = d[participant]
-        response_df = preprocess(response_df)
-        response_df.to_csv("filtered/" + participant+".csv", index=False)
+    cols.remove("__index_level_0__")
+    means = []
+    sds = []
+
+    for col in cols:
+        mean, sd = calc_mu_sigma(col)
+        means.append(mean)
+        sds.append(sd)
+        print(col, mean, sd)
+
+    df["Column"] = cols
+    df["Mean"] = means
+    df["SD"] = sds
+
+    df.to_csv("col_mean_sd.csv", index=False)
+    
+    '''
