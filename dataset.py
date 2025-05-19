@@ -4,6 +4,7 @@ import random
 import os
 import pandas as pd
 import numpy as np
+import torch
 
 random.seed(1)
 
@@ -101,17 +102,20 @@ def preprocess(df_primary):
 
 def test_train_val_split():
     #80 10 10 split
-    participant_list = os.listdir("filtered")
+    participant_list = os.listdir("filtered_scaled")
     random.shuffle(participant_list)
 
     n = len(participant_list)
 
 
 
-    train = participant_list[0: math.ceil(n*0.8)]
-    test = participant_list[ math.ceil(n*0.8): math.ceil(n*0.9)]
-    val = participant_list[math.ceil(n*0.9):]
-    return train, test, val
+    train_set = participant_list[0: math.ceil(n*0.8)]
+    test_set = participant_list[ math.ceil(n*0.8): math.ceil(n*0.9)]
+    val_set = participant_list[math.ceil(n*0.9):]
+
+
+    return train_set, test_set, val_set
+
 
 
 def calc_mu_sigma(column):
