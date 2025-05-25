@@ -8,6 +8,7 @@ import torch
 
 random.seed(1)
 
+
 def get_age(x):
     return 2025 - x
 
@@ -148,6 +149,12 @@ def scale(file, file_loc):
         df_main[col]  = df_main[col].apply(z_score)
 
     df_main.to_csv("filtered_scaled/" + file, index=False)
+
+
+
+
+
+
 
 if __name__ == "__main__":
     files = os.listdir("filtered")
